@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="UnityAds" default="extensions">
+
+    <property name="src.dir" location="src"/>
+    <property name="lib.dir" location="lib"/>
+    <property name="deps.dir" location="${lib.dir}/deps"/>
+    <property name="appinventor.dir" location="${lib.dir}/appinventor"/>
+    <property name="out.dir" location="out"/>
+
+    <path id="classpath">
+        <fileset dir="${deps.dir}">
+            <include name="*.jar"/>
+        </fileset>
+
+        <fileset dir="${appinventor.dir}">
+            <include name="*.jar"/>
+        </fileset>
+    </path>
+
+    <target name="clean">
+        <delete dir="${out.dir}"/>
+        <delete dir="build"/>
+    </target>
+
+    <target name="compile">
+        <mkdir dir="build/classes"/>
+        <mkdir dir="${out.dir}"/>
+
+        <javac
+            srcdir="${src.dir}"
+            destdir="build/classes"
+            source="8"
+            target="8"
+            encoding="UTF-8"
+            includeantruntime="false">
+
+            <classpath>
+                <path refid="classpath"/>
+            </classpath>
+
+        </javac>
+    </target>
+
+    <target name="extensions" depends="compile">
+
+        <mkdir dir="${out.dir}"/>
+
+        <jar
+            destfile="${out.dir}/UnityAds.jar"
+            basedir="build/classes"/>
+
+        <echo message="UnityAds Java compilation completed."/>
+
+    </target>
+
+</project>
