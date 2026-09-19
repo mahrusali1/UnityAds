@@ -1,0 +1,50 @@
+name: Build UnityAds
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '8'
+
+      - name: Install Ant
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ant
+
+      - name: Get App Inventor extension dependencies
+        run: |
+          git clone --depth 1 https://github.com/mit-cml/extension-deps.git lib/appinventor
+
+      - name: Check files
+        run: |
+          echo "=== Source ==="
+          find src -type f
+          echo "=== Dependencies ==="
+          ls -la lib/deps
+          echo "=== App Inventor ==="
+          ls -la lib/appinventor
+
+      - name: Build Extension
+        run: ant extensions
+
+      - name: Upload AIX
+        uses: actions/upload-artifact@v4
+        with:
+          name: UnityAds-AIX
+          path: out/*.aix
+          if-no-files-found: error
