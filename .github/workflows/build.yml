@@ -16,6 +16,12 @@ jobs:
         uses: actions/checkout@v4
         with:
           submodules: recursive
+          fetch-depth: 0
+
+      - name: Initialize submodule
+        run: |
+          git submodule sync --recursive
+          git submodule update --init --recursive
 
       - name: Setup Java
         uses: actions/setup-java@v5
@@ -28,16 +34,21 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y ant
 
-      - name: Check files
+      - name: Check App Inventor files
         run: |
-          echo "=== Source ==="
-          find src -type f
+          echo "=== .gitmodules ==="
+          cat .gitmodules
 
-          echo "=== Dependencies ==="
-          ls -la lib/deps
+          echo "=== lib/appinventor ==="
+          ls -lah lib/appinventor
 
-          echo "=== App Inventor ==="
-          ls -la lib/appinventor
+          echo "=== App Inventor JAR files ==="
+          find lib/appinventor -maxdepth 1 -type f -name "*.jar" -print
+
+      - name: Check dependencies
+        run: |
+          echo "=== lib/deps ==="
+          ls -lah lib/deps
 
       - name: Build Extension
         run: ant extensions
