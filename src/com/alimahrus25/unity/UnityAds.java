@@ -54,11 +54,12 @@ public class UnityAds extends AndroidNonvisibleComponent {
     private FrameLayout bannerContainer;
 
 
-    public UnityAds(ComponentContainer container) {
-        super(container.$form());
+          public UnityAds(ComponentContainer container) {
+    super(container.$form());
 
-        this.form = container.$form();
-        this.activity = (Activity) container.$context();
+    this.form = container.$form();
+    this.activity = this.form;
+
     }
 
 
