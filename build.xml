@@ -102,7 +102,42 @@
     </java>
   </target>
 
-  <target name="jarAllExtensions" depends="process">
+  <!--
+    ExternalComponentGenerator copies the libraries declared by
+    @UsesLibraries into each extension's class directory.
+
+    Before creating the extension JAR, those dependency JARs must be
+    unpacked into the extension class directory. Otherwise they remain
+    separate files and are not dexed into classes.jar.
+  -->
+  <target name="unjarAllExtensionLibraries" depends="process">
+
+    <foreach target="unjarExtensionLibraries"
+             param="extension"
+             inheritall="true">
+
+      <path>
+        <dirset dir="${ExternalComponent-class.dir}">
+          <include name="*" />
+        </dirset>
+      </path>
+
+    </foreach>
+  </target>
+
+  <target name="unjarExtensionLibraries">
+
+    <basename property="extensionClassFolder" file="${extension}" />
+
+    <unzip dest="${ExternalComponent-class.dir}/${extensionClassFolder}">
+      <fileset dir="${ExternalComponent-class.dir}/${extensionClassFolder}">
+        <include name="**/*.jar" />
+      </fileset>
+    </unzip>
+
+  </target>
+
+  <target name="jarAllExtensions" depends="unjarAllExtensionLibraries">
 
     <foreach target="jarExtension" param="extension" inheritall="true">
 
