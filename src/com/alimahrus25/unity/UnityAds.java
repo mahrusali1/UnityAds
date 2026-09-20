@@ -22,7 +22,7 @@ import com.unity3d.services.banners.UnityBannerSize;
 )
 @SimpleObject(external = true)
 public class UnityAds extends AndroidNonvisibleComponent {
-
+        private BannerView bannerView;
     public UnityAds(ComponentContainer container) {
         super(container.$form());
     }
