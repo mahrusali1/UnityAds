@@ -18,7 +18,6 @@ import com.google.appinventor.components.runtime.EventDispatcher;
 import com.google.appinventor.components.runtime.Form;
 
 import com.unity3d.ads.IUnityAdsInitializationListener;
-import com.unity3d.ads.UnityAds;
 import com.unity3d.ads.UnityAds.UnityAdsInitializationError;
 
 import com.unity3d.services.banners.BannerErrorInfo;
@@ -103,7 +102,7 @@ public class UnityAds extends AndroidNonvisibleComponent {
     public boolean IsInitialized() {
 
         try {
-            return initialized || UnityAds.isInitialized();
+            return initialized || com.unity3d.ads.UnityAds.isInitialized();
         } catch (Exception e) {
             return initialized;
         }
@@ -116,7 +115,7 @@ public class UnityAds extends AndroidNonvisibleComponent {
     public String SDKVersion() {
 
         try {
-            return UnityAds.getVersion();
+            return com.unity3d.ads.UnityAds.getVersion();
         } catch (Exception e) {
             return "";
         }
@@ -146,7 +145,7 @@ public class UnityAds extends AndroidNonvisibleComponent {
 
                         try {
 
-                            UnityAds.initialize(
+                            com.unity3d.ads.UnityAds.initialize(
                                     activity,
                                     gameId,
                                     testMode,
