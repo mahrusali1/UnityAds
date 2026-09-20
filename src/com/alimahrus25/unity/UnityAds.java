@@ -125,14 +125,8 @@ private FrameLayout bannerContainer;
     }
 
 
-   @SimpleFunction(description = "Initialize Unity Ads")
+@SimpleFunction(description = "Initialize Unity Ads")
 public void Initialize() {
-
-    initialized = true;
-
-    Initialized();
-
-    AdDebug("Initialize called.");
 }
 
     @SimpleFunction(
