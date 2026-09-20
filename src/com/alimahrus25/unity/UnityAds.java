@@ -1,7 +1,5 @@
 package com.alimahrus25.unity;
 
-import android.widget.FrameLayout;
-
 import com.google.appinventor.components.annotations.DesignerComponent;
 import com.google.appinventor.components.annotations.SimpleFunction;
 import com.google.appinventor.components.annotations.SimpleObject;
@@ -24,9 +22,6 @@ import com.unity3d.services.banners.UnityBannerSize;
 )
 @SimpleObject(external = true)
 public class UnityAds extends AndroidNonvisibleComponent {
-
-    private BannerView bannerView;
-    private FrameLayout bannerContainer;
 
     public UnityAds(ComponentContainer container) {
         super(container.$form());
