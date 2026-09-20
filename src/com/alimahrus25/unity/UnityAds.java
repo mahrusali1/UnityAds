@@ -1,8 +1,6 @@
 package com.alimahrus25.unity;
 
 import android.app.Activity;
-import android.util.Log;
-import android.widget.FrameLayout;
 
 import com.google.appinventor.components.annotations.DesignerComponent;
 import com.google.appinventor.components.annotations.SimpleEvent;
@@ -22,7 +20,7 @@ import com.unity3d.services.banners.UnityBannerSize;
 
 @DesignerComponent(
         version = 1,
-        description = "Unity Ads Extension Test",
+        description = "Unity Ads Extension",
         category = ComponentCategory.EXTENSION,
         nonVisible = true,
         iconName = ""
@@ -33,14 +31,27 @@ public class UnityAds extends AndroidNonvisibleComponent {
 
     private Activity activity;
     private BannerView bannerView;
+    private boolean initialized = false;
 
     public UnityAds(ComponentContainer container) {
         super(container.$form());
         activity = container.$form();
     }
 
+    // =========================================================
+    // INITIALIZE
+    // =========================================================
+
     @SimpleFunction(description = "Initialize Unity Ads")
     public void Initialize() {
+
+        AdDebug("Initialize() dipanggil");
+
+        if (com.unity3d.ads.UnityAds.isInitialized()) {
+            initialized = true;
+            AdDebug("Unity Ads sudah initialized");
+            return;
+        }
 
         com.unity3d.ads.UnityAds.initialize(
                 activity,
@@ -50,6 +61,9 @@ public class UnityAds extends AndroidNonvisibleComponent {
 
                     @Override
                     public void onInitializationComplete() {
+
+                        initialized = true;
+
                         AdDebug("Unity Ads initialized");
                     }
 
@@ -58,14 +72,36 @@ public class UnityAds extends AndroidNonvisibleComponent {
                             UnityAdsInitializationError error,
                             String message) {
 
-                        AdDebug("Initialize failed: " + error + " - " + message);
+                        initialized = false;
+
+                        AdDebug(
+                                "Initialize failed: "
+                                + error
+                                + " - "
+                                + message
+                        );
                     }
                 }
         );
     }
 
+    // =========================================================
+    // LOAD BANNER
+    // =========================================================
+
     @SimpleFunction(description = "Load Unity Banner")
     public void LoadBanner() {
+
+        if (!initialized &&
+                !com.unity3d.ads.UnityAds.isInitialized()) {
+
+            AdDebug("LoadBanner gagal: Unity Ads belum initialized");
+            return;
+        }
+
+        initialized = true;
+
+        AdDebug("Membuat BannerView");
 
         bannerView = new BannerView(
                 activity,
@@ -77,6 +113,7 @@ public class UnityAds extends AndroidNonvisibleComponent {
 
             @Override
             public void onBannerLoaded(BannerView bannerAdView) {
+
                 AdDebug("Banner loaded");
             }
 
@@ -85,26 +122,45 @@ public class UnityAds extends AndroidNonvisibleComponent {
                     BannerView bannerAdView,
                     BannerErrorInfo errorInfo) {
 
-                AdDebug("Banner failed: " + errorInfo.errorMessage);
+                AdDebug(
+                        "Banner failed: "
+                        + errorInfo.errorMessage
+                );
             }
 
             @Override
-            public void onBannerClick(BannerView bannerAdView) {
+            public void onBannerClick(
+                    BannerView bannerAdView) {
+
                 AdDebug("Banner clicked");
             }
 
             @Override
-            public void onBannerLeftApplication(BannerView bannerAdView) {
+            public void onBannerLeftApplication(
+                    BannerView bannerAdView) {
+
                 AdDebug("Banner left application");
             }
         });
 
+        AdDebug("Memulai banner.load()");
+
         bannerView.load();
+
         AdDebug("Banner load started");
     }
 
+    // =========================================================
+    // DEBUG EVENT
+    // =========================================================
+
     @SimpleEvent(description = "Debug message")
     public void AdDebug(String message) {
-        EventDispatcher.dispatchEvent(this, "AdDebug", message);
+
+        EventDispatcher.dispatchEvent(
+                this,
+                "AdDebug",
+                message
+        );
     }
 }
