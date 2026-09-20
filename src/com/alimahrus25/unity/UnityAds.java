@@ -125,108 +125,15 @@ private FrameLayout bannerContainer;
     }
 
 
-    @SimpleFunction(
-            description = "Initialize Unity Ads using the Game ID."
-    )
-    public void Initialize() {
+   @SimpleFunction(description = "Initialize Unity Ads")
+public void Initialize() {
 
-        if (gameId == null || gameId.length() == 0) {
+    initialized = true;
 
-            InitializationFailed(
-                    "INVALID_GAME_ID",
-                    "Unity Game ID is empty."
-            );
+    Initialized();
 
-            return;
-        }
-
-        activity.runOnUiThread(
-                new Runnable() {
-
-                    @Override
-                    public void run() {
-
-                        try {
-
-                            com.unity3d.ads.UnityAds.initialize(
-                                    activity,
-                                    gameId,
-                                    testMode,
-                                    new IUnityAdsInitializationListener() {
-
-                                        @Override
-                                        public void onInitializationComplete() {
-
-                                            initialized = true;
-
-                                            Initialized();
-
-                                            AdDebug(
-                                                    "Unity Ads initialized successfully."
-                                            );
-                                        }
-
-
-                                        @Override
-                                        public void onInitializationFailed(
-                                                UnityAdsInitializationError error,
-                                                String message) {
-
-                                            initialized = false;
-
-                                            String errorText;
-
-                                            if (error != null) {
-                                                errorText = error.toString();
-                                            } else {
-                                                errorText = "UNKNOWN";
-                                            }
-
-                                            String errorMessage;
-
-                                            if (message != null) {
-                                                errorMessage = message;
-                                            } else {
-                                                errorMessage = "";
-                                            }
-
-                                            InitializationFailed(
-                                                    errorText,
-                                                    errorMessage
-                                            );
-
-                                            AdDebug(
-                                                    "Unity Ads initialization failed: "
-                                                    + errorText
-                                                    + " - "
-                                                    + errorMessage
-                                            );
-                                        }
-                                    }
-                            );
-
-                        } catch (Exception e) {
-
-                            initialized = false;
-
-                            String message;
-
-                            if (e.getMessage() != null) {
-                                message = e.getMessage();
-                            } else {
-                                message = e.toString();
-                            }
-
-                            InitializationFailed(
-                                    "EXCEPTION",
-                                    message
-                            );
-                        }
-                    }
-                }
-        );
-    }
-
+    AdDebug("Initialize called.");
+}
 
     @SimpleFunction(
             description = "Create and load a Unity banner."
