@@ -17,12 +17,6 @@ import com.google.appinventor.components.runtime.ComponentContainer;
 import com.google.appinventor.components.runtime.EventDispatcher;
 import com.google.appinventor.components.runtime.Form;
 
-import com.unity3d.ads.IUnityAdsInitializationListener;
-import com.unity3d.ads.UnityAds.UnityAdsInitializationError;
-
-import com.unity3d.services.banners.BannerErrorInfo;
-import com.unity3d.services.banners.BannerView;
-import com.unity3d.services.banners.UnityBannerSize;
 
 
 @DesignerComponent(
@@ -50,9 +44,7 @@ public class UnityAds extends AndroidNonvisibleComponent {
     private boolean initialized = false;
     private boolean bannerLoaded = false;
 
-    private BannerView bannerView;
-    private FrameLayout bannerContainer;
-
+  
 
           public UnityAds(ComponentContainer container) {
     super(container.$form());
