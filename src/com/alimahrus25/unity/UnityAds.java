@@ -5,7 +5,7 @@ import com.google.appinventor.components.annotations.SimpleObject;
 import com.google.appinventor.components.common.ComponentCategory;
 import com.google.appinventor.components.runtime.AndroidNonvisibleComponent;
 import com.google.appinventor.components.runtime.ComponentContainer;
-import com.unity3d.ads.UnityAds;
+
 import com.unity3d.ads.IUnityAdsInitializationListener;
 import com.unity3d.ads.UnityAds.UnityAdsInitializationError;
 import com.unity3d.services.banners.BannerView;
