@@ -8,6 +8,7 @@ import com.google.appinventor.components.annotations.SimpleObject;
 import com.google.appinventor.components.common.ComponentCategory;
 import com.google.appinventor.components.runtime.AndroidNonvisibleComponent;
 import com.google.appinventor.components.runtime.ComponentContainer;
+import com.google.appinventor.components.annotations.UsesLibraries;
 
 import com.unity3d.ads.IUnityAdsInitializationListener;
 import com.unity3d.ads.UnityAds.UnityAdsInitializationError;
@@ -23,6 +24,7 @@ import com.unity3d.services.banners.UnityBannerSize;
         iconName = ""
 )
 @SimpleObject(external = true)
+@UsesLibraries(libraries = "unity-ads-4.2.0.jar")
 public class UnityAds extends AndroidNonvisibleComponent {
 
     private Activity activity;
