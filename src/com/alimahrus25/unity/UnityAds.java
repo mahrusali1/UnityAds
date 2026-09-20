@@ -37,10 +37,12 @@ public class UnityAds extends AndroidNonvisibleComponent {
     @SimpleFunction(description = "Test BannerView")
     public void TestBanner() {
 
-        BannerView testBanner = new BannerView(
-                activity,
-                "BP_Banner_Android",
-                new UnityBannerSize(320, 50)
-        );
-    }
+    BannerView testBanner = new BannerView(
+            activity,
+            "BP_Banner_Android",
+            new UnityBannerSize(320, 50)
+    );
+
+    testBanner.load();
+}
 }
