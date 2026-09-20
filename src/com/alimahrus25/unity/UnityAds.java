@@ -35,7 +35,9 @@ import com.unity3d.services.banners.UnityBannerSize;
 )
 @SimpleObject(external = true)
 @UsesPermissions(
-        permissionNames = "android.permission.INTERNET,android.permission.ACCESS_NETWORK_STATE"
+        permissionNames =
+                "android.permission.INTERNET,"
+                + "android.permission.ACCESS_NETWORK_STATE"
 )
 public class UnityAds extends AndroidNonvisibleComponent {
 
@@ -61,14 +63,11 @@ public class UnityAds extends AndroidNonvisibleComponent {
     }
 
 
-    // ============================================================
-    // PROPERTIES
-    // ============================================================
-
     @SimpleFunction(
             description = "Set the Unity Game ID."
     )
     public void GameId(String id) {
+
         if (id == null) {
             gameId = "";
         } else {
@@ -81,6 +80,7 @@ public class UnityAds extends AndroidNonvisibleComponent {
             description = "Set the Unity Banner Ad Unit / Placement ID."
     )
     public void BannerAdUnitId(String id) {
+
         if (id == null) {
             bannerAdUnitId = "";
         } else {
@@ -101,7 +101,12 @@ public class UnityAds extends AndroidNonvisibleComponent {
             description = "Returns true when Unity Ads SDK has been initialized."
     )
     public boolean IsInitialized() {
-        return initialized || UnityAds.isInitialized();
+
+        try {
+            return initialized || UnityAds.isInitialized();
+        } catch (Exception e) {
+            return initialized;
+        }
     }
 
 
@@ -109,6 +114,7 @@ public class UnityAds extends AndroidNonvisibleComponent {
             description = "Returns the Unity Ads SDK version."
     )
     public String SDKVersion() {
+
         try {
             return UnityAds.getVersion();
         } catch (Exception e) {
@@ -117,267 +123,307 @@ public class UnityAds extends AndroidNonvisibleComponent {
     }
 
 
-    // ============================================================
-    // INITIALIZE
-    // ============================================================
-
     @SimpleFunction(
             description = "Initialize Unity Ads using the Game ID."
     )
     public void Initialize() {
 
         if (gameId == null || gameId.length() == 0) {
+
             InitializationFailed(
                     "INVALID_GAME_ID",
                     "Unity Game ID is empty."
             );
+
             return;
         }
 
-        activity.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
+        activity.runOnUiThread(
+                new Runnable() {
 
-                try {
+                    @Override
+                    public void run() {
 
-                    UnityAds.initialize(
-                            activity,
-                            gameId,
-                            testMode,
-                            new IUnityAdsInitializationListener() {
+                        try {
 
-                                @Override
-                                public void onInitializationComplete() {
+                            UnityAds.initialize(
+                                    activity,
+                                    gameId,
+                                    testMode,
+                                    new IUnityAdsInitializationListener() {
 
-                                    initialized = true;
+                                        @Override
+                                        public void onInitializationComplete() {
 
-                                    Initialized();
-                                    AdDebug(
-                                            "Unity Ads initialized successfully."
-                                    );
-                                }
+                                            initialized = true;
+
+                                            Initialized();
+
+                                            AdDebug(
+                                                    "Unity Ads initialized successfully."
+                                            );
+                                        }
 
 
-                                @Override
-                                public void onInitializationFailed(
-                                        UnityAdsInitializationError error,
-                                        String message) {
+                                        @Override
+                                        public void onInitializationFailed(
+                                                UnityAdsInitializationError error,
+                                                String message) {
 
-                                    initialized = false;
+                                            initialized = false;
 
-                                    String errorText =
-                                            error != null
-                                                    ? error.toString()
-                                                    : "UNKNOWN";
+                                            String errorText;
 
-                                    InitializationFailed(
-                                            errorText,
-                                            message != null
-                                                    ? message
-                                                    : ""
-                                    );
+                                            if (error != null) {
+                                                errorText = error.toString();
+                                            } else {
+                                                errorText = "UNKNOWN";
+                                            }
 
-                                    AdDebug(
-                                            "Unity Ads initialization failed: "
+                                            String errorMessage;
+
+                                            if (message != null) {
+                                                errorMessage = message;
+                                            } else {
+                                                errorMessage = "";
+                                            }
+
+                                            InitializationFailed(
+                                                    errorText,
+                                                    errorMessage
+                                            );
+
+                                            AdDebug(
+                                                    "Unity Ads initialization failed: "
                                                     + errorText
                                                     + " - "
-                                                    + message
-                                    );
-                                }
+                                                    + errorMessage
+                                            );
+                                        }
+                                    }
+                            );
+
+                        } catch (Exception e) {
+
+                            initialized = false;
+
+                            String message;
+
+                            if (e.getMessage() != null) {
+                                message = e.getMessage();
+                            } else {
+                                message = e.toString();
                             }
-                    );
 
-                } catch (Exception e) {
-
-                    initialized = false;
-
-                    InitializationFailed(
-                            "EXCEPTION",
-                            e.getMessage() != null
-                                    ? e.getMessage()
-                                    : e.toString()
-                    );
+                            InitializationFailed(
+                                    "EXCEPTION",
+                                    message
+                            );
+                        }
+                    }
                 }
-            }
         );
     }
 
-
-    // ============================================================
-    // BANNER
-    // ============================================================
 
     @SimpleFunction(
             description = "Create and load a Unity banner."
     )
     public void LoadBanner() {
 
-        if (!UnityAds.isInitialized()) {
+        if (!IsInitialized()) {
+
             BannerFailed(
                     "NOT_INITIALIZED",
                     "Unity Ads has not been initialized."
             );
+
             return;
         }
 
-        if (bannerAdUnitId == null || bannerAdUnitId.length() == 0) {
+        if (bannerAdUnitId == null
+                || bannerAdUnitId.length() == 0) {
+
             BannerFailed(
                     "INVALID_AD_UNIT_ID",
                     "Banner Ad Unit ID is empty."
             );
+
             return;
         }
 
-        activity.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
+        activity.runOnUiThread(
+                new Runnable() {
 
-                try {
+                    @Override
+                    public void run() {
 
-                    destroyBannerInternal();
+                        try {
 
-                    UnityBannerSize bannerSize =
-                            new UnityBannerSize(320, 50);
+                            destroyBannerInternal();
 
-                    bannerView = new BannerView(
-                            activity,
-                            bannerAdUnitId,
-                            bannerSize
-                    );
+                            UnityBannerSize bannerSize =
+                                    new UnityBannerSize(320, 50);
 
-                    bannerView.setListener(
-                            new BannerView.IListener() {
-
-                                @Override
-                                public void onBannerLoaded(
-                                        BannerView bannerAdView) {
-
-                                    bannerLoaded = true;
-
-                                    BannerLoaded();
-
-                                    AdDebug(
-                                            "Unity banner loaded."
+                            bannerView =
+                                    new BannerView(
+                                            activity,
+                                            bannerAdUnitId,
+                                            bannerSize
                                     );
-                                }
 
+                            bannerView.setListener(
+                                    new BannerView.IListener() {
 
-                                @Override
-                                public void onBannerClick(
-                                        BannerView bannerAdView) {
+                                        @Override
+                                        public void onBannerLoaded(
+                                                BannerView bannerAdView) {
 
-                                    BannerClicked();
+                                            bannerLoaded = true;
 
-                                    AdDebug(
-                                            "Unity banner clicked."
-                                    );
-                                }
+                                            BannerLoaded();
 
-
-                                @Override
-                                public void onBannerFailedToLoad(
-                                        BannerView bannerAdView,
-                                        BannerErrorInfo errorInfo) {
-
-                                    bannerLoaded = false;
-
-                                    String errorCode = "UNKNOWN";
-                                    String errorMessage = "";
-
-                                    if (errorInfo != null) {
-
-                                        if (errorInfo.errorCode != null) {
-                                            errorCode =
-                                                    errorInfo.errorCode.toString();
+                                            AdDebug(
+                                                    "Unity banner loaded."
+                                            );
                                         }
 
-                                        if (errorInfo.errorMessage != null) {
-                                            errorMessage =
-                                                    errorInfo.errorMessage;
+
+                                        @Override
+                                        public void onBannerClick(
+                                                BannerView bannerAdView) {
+
+                                            BannerClicked();
+
+                                            AdDebug(
+                                                    "Unity banner clicked."
+                                            );
                                         }
-                                    }
 
-                                    BannerFailed(
-                                            errorCode,
-                                            errorMessage
-                                    );
 
-                                    AdDebug(
-                                            "Unity banner failed: "
+                                        @Override
+                                        public void onBannerFailedToLoad(
+                                                BannerView bannerAdView,
+                                                BannerErrorInfo errorInfo) {
+
+                                            bannerLoaded = false;
+
+                                            String errorCode = "UNKNOWN";
+                                            String errorMessage = "";
+
+                                            if (errorInfo != null) {
+
+                                                if (errorInfo.errorCode != null) {
+                                                    errorCode =
+                                                            errorInfo.errorCode.toString();
+                                                }
+
+                                                if (errorInfo.errorMessage != null) {
+                                                    errorMessage =
+                                                            errorInfo.errorMessage;
+                                                }
+                                            }
+
+                                            BannerFailed(
+                                                    errorCode,
+                                                    errorMessage
+                                            );
+
+                                            AdDebug(
+                                                    "Unity banner failed: "
                                                     + errorCode
                                                     + " - "
                                                     + errorMessage
+                                            );
+                                        }
+
+
+                                        @Override
+                                        public void onBannerLeftApplication(
+                                                BannerView bannerAdView) {
+
+                                            AdDebug(
+                                                    "Unity banner left application."
+                                            );
+                                        }
+                                    }
+                            );
+
+                            bannerView.setVisibility(
+                                    View.GONE
+                            );
+
+                            bannerContainer =
+                                    new FrameLayout(activity);
+
+                            bannerContainer.setBackgroundColor(
+                                    Color.TRANSPARENT
+                            );
+
+                            FrameLayout.LayoutParams bannerParams =
+                                    new FrameLayout.LayoutParams(
+                                            FrameLayout.LayoutParams.WRAP_CONTENT,
+                                            FrameLayout.LayoutParams.WRAP_CONTENT
                                     );
-                                }
 
+                            bannerParams.gravity =
+                                    Gravity.CENTER_HORIZONTAL
+                                    | Gravity.BOTTOM;
 
-                                @Override
-                                public void onBannerLeftApplication(
-                                        BannerView bannerAdView) {
+                            bannerContainer.addView(
+                                    bannerView,
+                                    bannerParams
+                            );
 
-                                    AdDebug(
-                                            "Unity banner left application."
+                            FrameLayout root =
+                                    activity.findViewById(
+                                            android.R.id.content
                                     );
-                                }
+
+                            if (root == null) {
+
+                                BannerFailed(
+                                        "ROOT_VIEW_ERROR",
+                                        "Unable to find Android content view."
+                                );
+
+                                return;
                             }
-                    );
 
-                    bannerView.setVisibility(View.GONE);
-
-                    bannerContainer =
-                            new FrameLayout(activity);
-
-                    bannerContainer.setBackgroundColor(
-                            Color.TRANSPARENT
-                    );
-
-                    FrameLayout.LayoutParams bannerParams =
-                            new FrameLayout.LayoutParams(
-                                    FrameLayout.LayoutParams.WRAP_CONTENT,
-                                    FrameLayout.LayoutParams.WRAP_CONTENT
+                            root.addView(
+                                    bannerContainer,
+                                    new FrameLayout.LayoutParams(
+                                            FrameLayout.LayoutParams.MATCH_PARENT,
+                                            FrameLayout.LayoutParams.WRAP_CONTENT,
+                                            Gravity.BOTTOM
+                                    )
                             );
 
-                    bannerParams.gravity =
-                            Gravity.CENTER_HORIZONTAL
-                            | Gravity.BOTTOM;
+                            bannerView.load();
 
-                    bannerContainer.addView(
-                            bannerView,
-                            bannerParams
-                    );
-
-                    FrameLayout root =
-                            activity.findViewById(
-                                    android.R.id.content
+                            AdDebug(
+                                    "Unity banner loading..."
                             );
 
-                    root.addView(
-                            bannerContainer,
-                            new FrameLayout.LayoutParams(
-                                    FrameLayout.LayoutParams.MATCH_PARENT,
-                                    FrameLayout.LayoutParams.WRAP_CONTENT,
-                                    Gravity.BOTTOM
-                            )
-                    );
+                        } catch (Exception e) {
 
-                    bannerView.load();
+                            bannerLoaded = false;
 
-                    AdDebug(
-                            "Unity banner loading..."
-                    );
+                            String message;
 
-                } catch (Exception e) {
+                            if (e.getMessage() != null) {
+                                message = e.getMessage();
+                            } else {
+                                message = e.toString();
+                            }
 
-                    bannerLoaded = false;
-
-                    BannerFailed(
-                            "EXCEPTION",
-                            e.getMessage() != null
-                                    ? e.getMessage()
-                                    : e.toString()
-                    );
+                            BannerFailed(
+                                    "EXCEPTION",
+                                    message
+                            );
+                        }
+                    }
                 }
-            }
         );
     }
 
@@ -387,48 +433,67 @@ public class UnityAds extends AndroidNonvisibleComponent {
     )
     public void ShowBanner() {
 
-        activity.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
+        activity.runOnUiThread(
+                new Runnable() {
 
-                try {
+                    @Override
+                    public void run() {
 
-                    if (bannerView == null) {
-                        LoadBanner();
-                        return;
+                        try {
+
+                            if (bannerView == null) {
+
+                                BannerFailed(
+                                        "NOT_CREATED",
+                                        "Banner has not been created. Call LoadBanner first."
+                                );
+
+                                return;
+                            }
+
+                            if (!bannerLoaded) {
+
+                                BannerFailed(
+                                        "NOT_LOADED",
+                                        "Banner is not loaded yet."
+                                );
+
+                                return;
+                            }
+
+                            bannerView.setVisibility(
+                                    View.VISIBLE
+                            );
+
+                            if (bannerContainer != null) {
+
+                                bannerContainer.setVisibility(
+                                        View.VISIBLE
+                                );
+                            }
+
+                            AdDebug(
+                                    "Unity banner shown."
+                            );
+
+                        } catch (Exception e) {
+
+                            String message;
+
+                            if (e.getMessage() != null) {
+                                message = e.getMessage();
+                            } else {
+                                message = e.toString();
+                            }
+
+                            BannerFailed(
+                                    "EXCEPTION",
+                                    message
+                            );
+                        }
                     }
-
-                    if (!bannerLoaded) {
-                        BannerFailed(
-                                "NOT_LOADED",
-                                "Banner is not loaded yet."
-                        );
-                        return;
-                    }
-
-                    bannerView.setVisibility(View.VISIBLE);
-
-                    if (bannerContainer != null) {
-                        bannerContainer.setVisibility(
-                                View.VISIBLE
-                        );
-                    }
-
-                    AdDebug(
-                            "Unity banner shown."
-                    );
-
-                } catch (Exception e) {
-
-                    BannerFailed(
-                            "EXCEPTION",
-                            e.getMessage() != null
-                                    ? e.getMessage()
-                                    : e.toString()
-                    );
                 }
-            }
-        });
+        );
     }
 
 
@@ -437,37 +502,50 @@ public class UnityAds extends AndroidNonvisibleComponent {
     )
     public void HideBanner() {
 
-        activity.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
+        activity.runOnUiThread(
+                new Runnable() {
 
-                try {
+                    @Override
+                    public void run() {
 
-                    if (bannerView != null) {
-                        bannerView.setVisibility(
-                                View.GONE
-                        );
+                        try {
+
+                            if (bannerView != null) {
+
+                                bannerView.setVisibility(
+                                        View.GONE
+                                );
+                            }
+
+                            if (bannerContainer != null) {
+
+                                bannerContainer.setVisibility(
+                                        View.GONE
+                                );
+                            }
+
+                            AdDebug(
+                                    "Unity banner hidden."
+                            );
+
+                        } catch (Exception e) {
+
+                            String message;
+
+                            if (e.getMessage() != null) {
+                                message = e.getMessage();
+                            } else {
+                                message = e.toString();
+                            }
+
+                            AdDebug(
+                                    "HideBanner error: "
+                                    + message
+                            );
+                        }
                     }
-
-                    if (bannerContainer != null) {
-                        bannerContainer.setVisibility(
-                                View.GONE
-                        );
-                    }
-
-                    AdDebug(
-                            "Unity banner hidden."
-                    );
-
-                } catch (Exception e) {
-
-                    AdDebug(
-                            "HideBanner error: "
-                                    + e.getMessage()
-                    );
                 }
-            }
-        });
+        );
     }
 
 
@@ -476,27 +554,38 @@ public class UnityAds extends AndroidNonvisibleComponent {
     )
     public void DestroyBanner() {
 
-        activity.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
+        activity.runOnUiThread(
+                new Runnable() {
 
-                try {
+                    @Override
+                    public void run() {
 
-                    destroyBannerInternal();
+                        try {
 
-                    AdDebug(
-                            "Unity banner destroyed."
-                    );
+                            destroyBannerInternal();
 
-                } catch (Exception e) {
+                            AdDebug(
+                                    "Unity banner destroyed."
+                            );
 
-                    AdDebug(
-                            "DestroyBanner error: "
-                                    + e.getMessage()
-                    );
+                        } catch (Exception e) {
+
+                            String message;
+
+                            if (e.getMessage() != null) {
+                                message = e.getMessage();
+                            } else {
+                                message = e.toString();
+                            }
+
+                            AdDebug(
+                                    "DestroyBanner error: "
+                                    + message
+                            );
+                        }
+                    }
                 }
-            }
-        });
+        );
     }
 
 
@@ -524,6 +613,7 @@ public class UnityAds extends AndroidNonvisibleComponent {
                         );
 
                 if (root != null) {
+
                     root.removeView(
                             bannerContainer
                     );
@@ -536,10 +626,6 @@ public class UnityAds extends AndroidNonvisibleComponent {
         }
     }
 
-
-    // ============================================================
-    // EVENTS
-    // ============================================================
 
     @SimpleEvent(
             description = "Raised when Unity Ads initialization succeeds."
@@ -612,7 +698,8 @@ public class UnityAds extends AndroidNonvisibleComponent {
     @SimpleEvent(
             description = "Debug information from the Unity Ads extension."
     )
-    public void AdDebug(String message) {
+    public void AdDebug(
+            String message) {
 
         EventDispatcher.dispatchEvent(
                 this,
