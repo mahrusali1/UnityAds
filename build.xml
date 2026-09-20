@@ -178,15 +178,23 @@
 
   </target>
 
-  <target name="packExtension">
+ <target name="packExtension">
 
     <basename property="extensionType" file="${extension}" />
+
+    <mkdir dir="${ExternalComponent.dir}/${extensionType}/files" />
+
+    <copy todir="${ExternalComponent.dir}/${extensionType}/files">
+        <fileset dir="lib/deps">
+            <include name="*.jar" />
+        </fileset>
+    </copy>
 
     <zip destfile="${Extensions.dir}/${extensionType}.aix"
          basedir="${ExternalComponent.dir}"
          includes="${extensionType}/" />
 
-  </target>
+</target>
 
   <target name="extensions"
           depends="jarAllExtensions,dexAllExtensions">
