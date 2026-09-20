@@ -1,5 +1,7 @@
 package com.alimahrus25.unity;
 
+import android.app.Activity;
+
 import com.google.appinventor.components.annotations.DesignerComponent;
 import com.google.appinventor.components.annotations.SimpleFunction;
 import com.google.appinventor.components.annotations.SimpleObject;
@@ -22,13 +24,21 @@ import com.unity3d.services.banners.UnityBannerSize;
 )
 @SimpleObject(external = true)
 public class UnityAds extends AndroidNonvisibleComponent {
-        private BannerView bannerView;
+
+    private Activity activity;
+
     public UnityAds(ComponentContainer container) {
         super(container.$form());
+        activity = container.$form();
     }
 
-    @SimpleFunction(description = "Test Unity Ads SDK")
-    public void TestSDK() {
-        boolean ready = com.unity3d.ads.UnityAds.isInitialized();
+    @SimpleFunction(description = "Test BannerView")
+    public void TestBanner() {
+
+        BannerView testBanner = new BannerView(
+                activity,
+                "BP_Banner_Android",
+                new UnityBannerSize(320, 50)
+        );
     }
 }
